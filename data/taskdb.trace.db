@@ -1,0 +1,6 @@
+2026-01-13 14:08:09.239924+05:30 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]ID"; expected "INSERT"; SQL statement:
+ID [42001-232]
+2026-01-13 14:56:07.544786+05:30 jdbc[27]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TASKS" not found; SQL statement:
+DELETE FROM TASKS [42102-232]

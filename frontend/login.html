@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login | Task Manager</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #020617, #0f172a);
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.card {
+  background: #020617;
+  width: 360px;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 24px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  font-size: 14px;
+}
+
+input::placeholder {
+  color: #94a3b8;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+.switch {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+.switch a {
+  color: #60a5fa;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#error {
+  min-height: 20px;
+  margin-top: 12px;
+  text-align: center;
+  font-size: 14px;
+  color: #f87171;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2 id="title">Login</h2>
+
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+
+  <button id="mainBtn" onclick="submitForm()">Login</button>
+
+  <div id="error"></div>
+
+  <div class="switch" id="switchText">
+    Don’t have an account?
+    <a onclick="toggle()">Register</a>
+  </div>
+</div>
+
+<script>
+let mode = "login";
+
+function toggle() {
+  const title = document.getElementById("title");
+  const btn = document.getElementById("mainBtn");
+  const switchText = document.getElementById("switchText");
+  const error = document.getElementById("error");
+
+  error.innerText = "";
+  error.style.color = "#f87171";
+
+  if (mode === "login") {
+    mode = "register";
+    title.innerText = "Register";
+    btn.innerText = "Create Account";
+    switchText.innerHTML = `Already have an account? <a onclick="toggle()">Login</a>`;
+  } else {
+    mode = "login";
+    title.innerText = "Login";
+    btn.innerText = "Login";
+    switchText.innerHTML = `Don’t have an account? <a onclick="toggle()">Register</a>`;
+  }
+}
+
+async function submitForm() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const error = document.getElementById("error");
+
+  error.innerText = "";
+  error.style.color = "#f87171";
+
+  if (!username || !password) {
+    error.innerText = "Please enter username and password";
+    return;
+  }
+
+  const url =
+    mode === "login"
+      ? "http://localhost:8080/auth/login"
+      : "http://localhost:8080/auth/register";
+
+  let response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+  } catch {
+    error.innerText = "Server not running";
+    return;
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    error.innerText = "Server error";
+    return;
+  }
+
+  if (!response.ok) {
+    error.innerText = data.error || "Request failed";
+    return;
+  }
+
+  if (mode === "register") {
+    error.style.color = "#4ade80";
+    error.innerText = "Registered successfully. Please login.";
+    toggle();
+    return;
+  }
+
+  // Login success
+  localStorage.setItem("jwt", data.token);
+  window.location = "index.html";
+}
+</script>
+
+</body>
+</html>

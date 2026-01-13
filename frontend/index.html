@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Task Manager</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0f172a;
+  color: white;
+  max-width: 850px;
+  margin: auto;
+  padding: 30px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logout {
+  background: #ef4444;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+/* ADD TASK */
+.add-box {
+  background: #020617;
+  padding: 20px;
+  border-radius: 16px;
+  margin: 25px 0;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: none;
+  background: #1e293b;
+  color: white;
+}
+
+textarea { resize: none; height: 80px; }
+
+.add-btn {
+  background: #3b82f6;
+  border: none;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* FILTER */
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filters button {
+  background: #334155;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+/* TASK CARD */
+.task {
+  background: #020617;
+  padding: 18px 20px;
+  border-radius: 18px;
+  margin-bottom: 16px;
+  border-left: 6px solid;
+}
+
+.task.HIGH { border-color: #ef4444; }
+.task.MEDIUM { border-color: #f59e0b; }
+.task.LOW { border-color: #22c55e; }
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.HIGH { background: #ef4444; }
+.badge.MEDIUM { background: #f59e0b; }
+.badge.LOW { background: #22c55e; }
+
+.task-desc {
+  margin-top: 8px;
+  color: #cbd5f5;
+}
+
+.task-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.task-actions button {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+.edit { background: #64748b; }
+.save { background: #22c55e; }
+.delete { background: #ef4444; }
+.cancel { background: #475569; }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h2>Task Manager</h2>
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<div class="add-box">
+  <h3>Add Task</h3>
+  <input id="taskTitle" placeholder="Task title">
+  <textarea id="taskDesc" placeholder="Task description"></textarea>
+  <select id="priority">
+    <option value="LOW">Low</option>
+    <option value="MEDIUM">Medium</option>
+    <option value="HIGH">High</option>
+  </select>
+  <button class="add-btn" onclick="addTask()">Add Task</button>
+</div>
+
+<div class="filters">
+  <button onclick="setFilter('ALL')">All</button>
+  <button onclick="setFilter('HIGH')">High</button>
+  <button onclick="setFilter('MEDIUM')">Medium</button>
+  <button onclick="setFilter('LOW')">Low</button>
+</div>
+
+<div id="taskList"></div>
+
+<script>
+let jwt = localStorage.getItem("jwt");
+let currentFilter = "ALL";
+if (!jwt) location = "login.html";
+
+function setFilter(f) {
+  currentFilter = f;
+  loadTasks();
+}
+
+async function loadTasks() {
+  const res = await fetch("http://localhost:8080/tasks", {
+    headers: { Authorization: "Bearer " + jwt }
+  });
+  const tasks = await res.json();
+  const list = document.getElementById("taskList");
+  list.innerHTML = "";
+
+  tasks.filter(t => currentFilter === "ALL" || t.priority === currentFilter)
+    .forEach(t => renderTask(t));
+}
+
+function renderTask(t) {
+  const card = document.createElement("div");
+  card.className = "task " + t.priority;
+
+  card.innerHTML = `
+    <div class="task-header">
+      <div class="task-title">${t.title}</div>
+      <span class="badge ${t.priority}">${t.priority}</span>
+    </div>
+    <div class="task-desc">${t.description || ""}</div>
+    <div class="task-actions">
+      <button class="edit">Edit</button>
+      <button class="delete">Delete</button>
+    </div>
+  `;
+
+  card.querySelector(".delete").onclick = () => deleteTask(t.id);
+  card.querySelector(".edit").onclick = () => editTask(card, t);
+
+  document.getElementById("taskList").appendChild(card);
+}
+
+function editTask(card, t) {
+  card.innerHTML = `
+    <input id="etitle" value="${t.title}">
+    <textarea id="edesc">${t.description || ""}</textarea>
+    <select id="eprio">
+      <option ${t.priority==="LOW"?"selected":""}>LOW</option>
+      <option ${t.priority==="MEDIUM"?"selected":""}>MEDIUM</option>
+      <option ${t.priority==="HIGH"?"selected":""}>HIGH</option>
+    </select>
+    <div class="task-actions">
+      <button class="save">Save</button>
+      <button class="cancel">Cancel</button>
+    </div>
+  `;
+
+  card.querySelector(".save").onclick = () =>
+    updateTask(t.id, etitle.value, edesc.value, eprio.value);
+
+  card.querySelector(".cancel").onclick = loadTasks;
+}
+
+async function addTask() {
+  await fetch("http://localhost:8080/tasks", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + jwt
+    },
+    body: JSON.stringify({
+      title: taskTitle.value,
+      description: taskDesc.value,
+      priority: priority.value
+    })
+  });
+  taskTitle.value = "";
+  taskDesc.value = "";
+  loadTasks();
+}
+
+async function deleteTask(id) {
+  await fetch("http://localhost:8080/tasks/" + id, {
+    method: "DELETE",
+    headers: { Authorization: "Bearer " + jwt }
+  });
+  loadTasks();
+}
+
+async function updateTask(id, title, desc, prio) {
+  await fetch("http://localhost:8080/tasks/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + jwt
+    },
+    body: JSON.stringify({ title, description: desc, priority: prio })
+  });
+  loadTasks();
+}
+
+function logout() {
+  localStorage.removeItem("jwt");
+  location = "login.html";
+}
+
+loadTasks();
+</script>
+
+</body>
+</html>
