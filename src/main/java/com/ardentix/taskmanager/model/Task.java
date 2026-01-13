@@ -9,18 +9,18 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;      // ✅ exists
+    private String title;
 
     @Column(length = 2000)
     private String description;
 
-    private String priority = "LOW";   // 🔥 must match frontend values
+    private String priority = "LOW";   
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    // ----- getters -----
+
 
     public Long getId() { return id; }
 
@@ -32,7 +32,6 @@ public class Task {
 
     public User getUser() { return user; }
 
-    // ----- setters -----
 
     public void setId(Long id) { this.id = id; }
 
