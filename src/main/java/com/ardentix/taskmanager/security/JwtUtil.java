@@ -14,7 +14,7 @@ public class JwtUtil {
     private static final String SECRET =
             "THIS_IS_MY_SUPER_SECRET_KEY_FOR_TASK_MANAGER_1234567890";
 
-    private static final long EXPIRATION = 1000 * 60 * 60; // 1 hour
+    private static final long EXPIRATION = 1000 * 60 * 60;
 
     private SecretKey getKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
