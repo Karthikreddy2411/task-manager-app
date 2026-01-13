@@ -1,4 +1,6 @@
-This is an Task Manager Application which is bulid by **Spring boot** for backend
+# Task Manager Application
+
+A Full stack **Task Manager Application** which is bulid by **Spring boot** for backend
 The application supports **JWT-based authentication** and allows users to manage tasks.
 
 
@@ -25,7 +27,7 @@ The application supports **JWT-based authentication** and allows users to manage
 - CSS
 - JavaScript
 
-## 📁 Project Structure
+##  Project Structure
 task-manager-app/
 ├── src/ # Spring Boot backend source code
 ├── frontend/ # Frontend HTML files
@@ -38,14 +40,14 @@ task-manager-app/
 └── README.md
 
 ### To run this project 
-1️⃣ Clone the repository
+1. Clone the repository
 git clone https://github.com/Karthikreddy2411/task-manager-app.git
 cd task-manager-app
 
-2️⃣ Run Backend (Spring Boot)
+2. Run Backend (Spring Boot)
 ./mvnw spring-boot:run
 
-3️⃣ Run Frontend
+3. Run Frontend
 Open this file in your browser:
 frontend/login.html
 
@@ -53,7 +55,7 @@ And atlast after opeing the login.html You can create tasks, manage them, edit t
 
 Hope You like it.............
 Auhor: Karthik
-##---- THANK YOU ---##
+THANK YOU
 
 
 
